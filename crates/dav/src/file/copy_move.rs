@@ -124,7 +124,10 @@ impl FileCopyMoveRequestHandler for Server {
             && (from_resource_name == destination_resource_name
                 || from_resource_name
                     .strip_prefix(destination_resource_name)
-                    .is_some_and(|v| v.is_empty() || v.starts_with('/')))
+                    .is_some_and(|v| v.is_empty() || v.starts_with('/'))
+                || destination_resource_name
+                    .strip_prefix(from_resource_name)
+                    .is_some_and(|v| v.starts_with('/')))
         {
             return Ok(HttpResponse::new(StatusCode::BAD_GATEWAY));
         }
