@@ -732,7 +732,9 @@ pub(super) fn update_file_node<R: ResolveCreatedReference<FileNodeProperty, File
                 pending_size = Some(0);
             }
             (FileNodeProperty::Type, Value::Str(value))
-                if (1..=256).contains(&value.len()) && value.contains('/') =>
+                if (1..=256).contains(&value.len())
+                && value.contains('/')
+                && !value.bytes().any(|b| b.is_ascii_control()) =>
             {
                 // TODO: validate full RFC 6838 Section 4.2 ABNF for media types
                 pending_type = Some(Some(value.into_owned()));
