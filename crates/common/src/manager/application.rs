@@ -33,6 +33,8 @@ use types::{blob_hash::BlobHash, id::Id};
 
 const APP_BLOB_PREFIX: &str = "STALWART_APP_";
 const MAX_APP_SIZE: usize = 100 * 1024 * 1024;
+const MAX_APP_ENTRY_SIZE: u64 = 100 * 1024 * 1024;
+const MAX_APP_TOTAL_SIZE: u64 = 500 * 1024 * 1024;
 const BASE_HREF: &str = "<base href=\"/\"";
 const OAUTH_CLIENT_ID: &str = "<meta name=\"oauth-client-id\" content=\"\"";
 
@@ -281,6 +283,7 @@ impl WebApplicationManager {
             }
 
             let mut resources = AHashMap::with_capacity(archive.len());
+            let mut total_size = 0u64;
             for i in 0..archive.len() {
                 let mut file = archive.by_index(i).map_err(|err| {
                     trc::ResourceEvent::Error
@@ -293,7 +296,17 @@ impl WebApplicationManager {
                 }
 
                 let mut contents = Vec::new();
-                file.read_to_end(&mut contents).map_err(unpack_error)?;
+                (&mut file)
+                    .take(MAX_APP_ENTRY_SIZE + 1)
+                    .read_to_end(&mut contents)
+                    .map_err(unpack_error)?;
+                total_size += contents.len() as u64;
+                if contents.len() as u64 > MAX_APP_ENTRY_SIZE || total_size > MAX_APP_TOTAL_SIZE {
+                    return Err(trc::ResourceEvent::Error
+                        .caused_by(trc::location!())
+                        .ctx(Key::Url, url.clone())
+                        .details("Application bundle is too large when decompressed"));
+                }
                 let file_name = file.name().to_string();
                 drop(file);
 

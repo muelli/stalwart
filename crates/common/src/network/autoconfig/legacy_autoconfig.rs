@@ -29,6 +29,8 @@ impl Server {
         };
 
         // Build XML response
+        let emailaddress = super::xml_escape(emailaddress);
+        let domain = super::xml_escape(domain);
         let mut config = String::with_capacity(1024);
         config.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         config.push_str("<clientConfig version=\"1.1\">\n");

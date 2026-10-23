@@ -207,7 +207,14 @@ impl FilePropPatchRequestHandler for Server {
                 (DavProperty::WebDav(WebDavProperty::GetContentType), DavValue::String(name))
                     if file.file.is_some() =>
                 {
-                    if name.len() <= self.core.groupware.live_property_size {
+                    if name.bytes().any(|b| b.is_ascii_control()) {
+                        items.insert_error_with_description(
+                            property.property,
+                            StatusCode::BAD_REQUEST,
+                            "Invalid media type",
+                        );
+                        has_errors = true;
+                    } else if name.len() <= self.core.groupware.live_property_size {
                         file.file.as_mut().unwrap().media_type = Some(name);
                         items.insert_ok(property.property);
                     } else {

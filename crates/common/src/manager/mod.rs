@@ -7,10 +7,7 @@
 use crate::USER_AGENT;
 use hyper::HeaderMap;
 use mail_auth::flate2;
-use std::{
-    io::{BufReader, Read},
-    time::Duration,
-};
+use std::{io::Read, time::Duration};
 use utils::HttpLimitResponse;
 
 pub mod application;
@@ -21,6 +18,8 @@ pub mod defaults;
 pub mod restore;
 #[cfg(target_os = "linux")]
 pub mod systemd;
+
+const MAX_INFLATE_RATIO: u64 = 20;
 
 pub const SPAM_TRAINER_KEY: &[u8] = "STALWART_SPAM_TRAIN_DATA.lz4".as_bytes();
 pub const SPAM_CLASSIFIER_KEY: &[u8] = "STALWART_SPAM_CLASSIFIER_MODEL.lz4".as_bytes();
@@ -64,10 +63,19 @@ pub async fn fetch_resource(
     }
     .and_then(|bytes| {
         if url.ends_with(".gz") || url.ends_with(".gzip") {
-            BufReader::new(flate2::read::GzDecoder::new(&bytes[..]))
-                .bytes()
-                .collect::<Result<Vec<u8>, _>>()
+            let limit = (max_size as u64).saturating_mul(MAX_INFLATE_RATIO);
+            let mut inflated = Vec::new();
+            flate2::read::GzDecoder::new(&bytes[..])
+                .take(limit + 1)
+                .read_to_end(&mut inflated)
                 .map_err(|err| format!("Failed to decompress {url}: {err}"))
+                .and_then(|_| {
+                    if inflated.len() as u64 > limit {
+                        Err(format!("Resource too large after decompression: {url}"))
+                    } else {
+                        Ok(inflated)
+                    }
+                })
         } else {
             Ok(bytes)
         }
