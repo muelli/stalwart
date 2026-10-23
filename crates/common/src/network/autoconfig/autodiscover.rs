@@ -90,6 +90,7 @@ fn build_autodiscover_response(
     services: &VecMap<ServiceProtocol, Service>,
 ) -> String {
     // Build XML response
+    let emailaddress = &super::xml_escape(emailaddress);
     let mut config = String::with_capacity(1024);
     let _ = writeln!(&mut config, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
     let _ = writeln!(
