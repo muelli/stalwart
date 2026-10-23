@@ -66,7 +66,11 @@ impl SmtpConfig {
                 .redirect(reqwest::redirect::Policy::none())
                 .build()
                 .unwrap_or_default(),
-            tls_report_client: utils::http::unpooled_http_client(false),
+            tls_report_client: utils::http::http_client_builder(false)
+                .pool_max_idle_per_host(0)
+                .redirect(reqwest::redirect::Policy::none())
+                .build()
+                .unwrap_or_default(),
         };
 
         if !config.resolvers.dnssec_available
