@@ -146,6 +146,11 @@ pub async fn test(
     imap.assert_read(Type::Tagged, ResponseType::Ok).await;
     imap.send("RENAME \"Deleted Items\" \"Recycle Bin\"").await;
     imap.assert_read(Type::Tagged, ResponseType::Ok).await;
+    // Renaming a mailbox into its own subtree must fail
+    imap.send("RENAME \"Fruit\" \"Fruit/Apple/Loop\"").await;
+    imap.assert_read(Type::Tagged, ResponseType::No).await;
+    imap.send("RENAME \"Fruit\" \"Fruit/Loop\"").await;
+    imap.assert_read(Type::Tagged, ResponseType::No).await;
     for imap in [&mut imap, &mut imap_check] {
         imap.send("LIST \"\" \"*\" RETURN (CHILDREN SPECIAL-USE)")
             .await;
