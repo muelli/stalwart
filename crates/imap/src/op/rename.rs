@@ -196,6 +196,30 @@ impl<T: SessionStream> SessionData<T> {
             }
         }
 
+        // Validate that the mailbox is not moved under itself
+        if let Some(parent_mailbox_id) = params.parent_mailbox_id {
+            let cache = caches
+                .fetch(&self.server, params.account_id)
+                .await
+                .imap_ctx(&arguments.tag, trc::location!())?;
+            let mut next_id = Some(parent_mailbox_id);
+            let mut depth = 0;
+            while let Some(id) = next_id {
+                if id == mailbox_id {
+                    return Err(trc::ImapEvent::Error
+                        .into_err()
+                        .details("Cannot move a mailbox under itself.")
+                        .code(ResponseCode::Cannot)
+                        .id(arguments.tag));
+                }
+                depth += 1;
+                if depth > self.server.core.email.mailbox_max_depth {
+                    break;
+                }
+                next_id = cache.mailboxes.mailbox_by_id(&id).and_then(|m| m.parent_id());
+            }
+        }
+
         // Build batch
         let parent_id = params.parent_mailbox_id.map(|id| id + 1).unwrap_or(0);
         let mut batch = BatchBuilder::new();
