@@ -250,7 +250,13 @@ impl FilePropPatchRequestHandler for Server {
                 (DavProperty::WebDav(WebDavProperty::GetContentType), DavValue::String(name))
                     if file.file().is_some() =>
                 {
-                    if name.len() <= self.core.groupware.live_property_size {
+                    if name.bytes().any(|b| b.is_ascii_control()) {
+                        items.insert_error_with_description(
+                            property.property,
+                            StatusCode::BAD_REQUEST,
+                            "Invalid media type",
+                        );
+                    } else if name.len() <= self.core.groupware.live_property_size {
                         if let Some(file) = file.file_mut() {
                             file.media_type = Some(name);
                         }
