@@ -8,12 +8,14 @@ use crate::USER_AGENT;
 use hyper::HeaderMap;
 use smtp_report::flate2;
 use std::{
-    io::{BufReader, Read},
+    io::Read,
     time::Duration,
 };
 use utils::HttpLimitResponse;
 
 pub mod app_client;
+const MAX_INFLATE_RATIO: u64 = 20;
+
 pub mod application;
 pub mod backup;
 pub mod boot;
@@ -68,10 +70,19 @@ pub async fn fetch_resource(
     }
     .and_then(|bytes| {
         if url.ends_with(".gz") || url.ends_with(".gzip") {
-            BufReader::new(flate2::read::GzDecoder::new(&bytes[..]))
-                .bytes()
-                .collect::<Result<Vec<u8>, _>>()
+            let limit = (max_size as u64).saturating_mul(MAX_INFLATE_RATIO);
+            let mut inflated = Vec::new();
+            flate2::read::GzDecoder::new(&bytes[..])
+                .take(limit + 1)
+                .read_to_end(&mut inflated)
                 .map_err(|err| format!("Failed to decompress {url}: {err}"))
+                .and_then(|_| {
+                    if inflated.len() as u64 > limit {
+                        Err(format!("Resource too large after decompression: {url}"))
+                    } else {
+                        Ok(inflated)
+                    }
+                })
         } else {
             Ok(bytes)
         }
