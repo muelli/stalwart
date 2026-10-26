@@ -7,6 +7,7 @@
 use crate::core::{MailboxId, Session, SessionData};
 use common::{network::SessionStream, sharing::EffectiveAcl, storage::index::ObjectIndexBuilder};
 use compact_str::format_compact;
+use email::cache::mailbox::MailboxCacheAccess;
 use imap_proto::{
     Command, ResponseCode, StatusResponse, protocol::rename::Arguments, receiver::Request,
 };
@@ -171,6 +172,30 @@ impl<T: SessionStream> SessionData<T> {
                     ))
                     .code(ResponseCode::OverQuota)
                     .id(arguments.tag.clone()));
+            }
+        }
+
+        // Validate that the mailbox is not moved under itself
+        if let Some(parent_mailbox_id) = params.parent_mailbox_id {
+            let cache = caches
+                .fetch(&self.server, params.account_id)
+                .await
+                .imap_ctx(&arguments.tag, trc::location!())?;
+            let mut next_id = Some(parent_mailbox_id);
+            let mut depth = 0;
+            while let Some(id) = next_id {
+                if id == mailbox_id {
+                    return Err(trc::ImapEvent::Error
+                        .into_err()
+                        .details("Cannot move a mailbox under itself.")
+                        .code(ResponseCode::Cannot)
+                        .id(arguments.tag));
+                }
+                depth += 1;
+                if depth > self.server.core.email.mailbox_max_depth {
+                    break;
+                }
+                next_id = cache.mailboxes.mailbox_by_id(&id).and_then(|m| m.parent_id());
             }
         }
 
