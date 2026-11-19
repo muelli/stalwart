@@ -10,7 +10,7 @@ Captured output: out_F*.txt in this directory. Container has no outbound network
 | Finding | 0.16.27 | 1.1.1 | Evidence |
 |---|---|---|---|
 | F1 OAuth redirect_uri not enforced | VULNERABLE | NOT VULNERABLE | Login API changed (authorization params now in `query`); unregistered URI -> `invalid_request: redirect_uri ... does not match the client registration`; registered URI proceeds (fails later only on missing `state`). Source: authorize.rs enforces `client.redirect_uri_matches` unconditionally. |
-| F2 Push error body unbounded | not testable | NOT TESTABLE | needs a public HTTPS endpoint; no outbound network in the lab |
+| F2 Push error body unbounded | not testable | VULNERABLE | lab-internal HTTPS target (docker subnet 11.22.33.0/24 passes is_global_ipv4, --add-host, lab CA in the container trust store); one PushSubscription/set -> verification POST answered with 500 + 256 MiB body; VmRSS 95 MB -> 513 MB peak (run 1), 131 MB -> 689 MB peak (run 2). Control with v1.1/push-error-body-limit a35a27c built from source: 108 MB -> 112 MB, connection closed after 1 KiB. See out_F2.txt, out_F2_control.txt, F2_push_body.sh, F2_push_target.py. |
 | F3 TLSRPT redirects | not testable | NOT TESTED | needs outbound delivery; reported fixed upstream |
 | F4 build().unwrap() panic | VULNERABLE | NOT VULNERABLE | both triggers now return HTTP 500, 0 panics in stderr |
 | F5 DAV MOVE into own subtree | VULNERABLE | NOT VULNERABLE | MOVE -> 403, tree intact, PROPFIND 207 |

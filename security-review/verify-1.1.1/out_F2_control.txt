@@ -1,0 +1,10 @@
+# F2 CONTROL on patched build: muelli/stalwart v1.1/push-error-body-limit commit a35a27c (one commit on v1.1.1), cargo build --release -p stalwart with rustc 1.98.1, binary mounted over /usr/local/bin/stalwart in the same v1.1.1 image, same data volumes, same lab network/CA/hosts (container sw4)
+# push target log:
+15:55:04 POST /push from 11.22.33.2 req_len=107 -> 500 with 268435456 bytes
+15:55:04 sent 0 bytes
+# RSS of PID 1 (VmRSS, every 0.25 s):
+baseline 15:55:03.727 108124 kB
+peak     15:55:14.460 112136 kB
+final    15:55:36.453 111476 kB
+# binary check: built=fb5c3bef0fd2fdc3 in-sw4=fb5c3bef0fd2fdc3 stock-image=; sw4 version: 1.1.1
+# VERDICT: NOT VULNERABLE with a35a27c (RSS flat, +4 MB; the client closed the connection before the target wrote its first chunk)
