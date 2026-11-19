@@ -1,0 +1,3 @@
+advertised maxSizeRequest: 10000000
+sent 20.0 MiB (limit advertised: 10 MB); server reply: {"@type":"RequestError","type":"urn:ietf:params:jmap:error:limit","limit":"maxSizeRequest","status":400,"detail":"The request is larger than the server is willing to proc
+RESULT: VULNERABLE - whole message was buffered before the size check

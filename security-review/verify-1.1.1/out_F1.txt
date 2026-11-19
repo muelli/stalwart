@@ -1,0 +1,9 @@
+1) admin registers public client demo-1795059638 with redirectUris={https://good.example/cb}
+"created":{"o":{"id":"c"}}
+2) user logs in for demo-1795059638 with UNREGISTERED redirectUri https://not-registered.example/cb
+   response: {"type":"about:blank","status":400,"title":"Invalid parameters","detail":"JSON deserialization failed"}
+RESULT: refused (fixed)
+https://attacker.example/cb -> {"type":"invalid","error":"invalid_request","description":"The redirect_uri parameter is missing or does not match the client registration."}
+
+https://good.example/cb -> {"type":"redirect","location":"https://good.example/cb?error=invalid_request&error_description=The+state+parameter+is+missing.&iss=https%3A%2F%2Fmail.lab.test"}
+

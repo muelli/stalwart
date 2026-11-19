@@ -1,0 +1,10 @@
+a) upload a blob, then download with accept=text/plain<LF>x
+   blobId=ecarof9eq0cn1tyymvwf1sudhn0qtkil21baliha093yxhn9aibp2avpylw0mbq
+   normal accept:  HTTP 200
+   accept with LF: HTTP 000 curl_exit=52
+b) PUT a WebDAV file, PROPPATCH getcontenttype with &#10;, then GET it
+   PUT:        HTTP 201
+   PROPPATCH:  HTTP 207
+   GET after:  HTTP 000 curl_exit=52
+Check server stderr for: panicked at crates/http-proto/src/response.rs:260  (docker logs <container> 2>&1 | grep panicked)
+panics in server stderr during this run: 2

@@ -1,0 +1,7 @@
+1) admin registers public client demo-1792758559 with redirectUris={https://good.example/cb}
+"created":{"o":{"id":"c"}}
+2) user logs in for demo-1792758559 with UNREGISTERED redirectUri https://not-registered.example/cb
+   response: {"type":"authenticated","client_code":"REDACTED","iss":"https://mail.lab.test"}
+3) exchange code at /auth/token with the unregistered redirect_uri
+   response: {"access_token":"sw1.REDACTED","token_type...
+RESULT: VULNERABLE - token issued to unregistered redirect_uri

@@ -1,0 +1,8 @@
+5:		<displayName>x<probe/>@lab.test</displayName>
+11:			<username>x<probe/>@lab.test</username>
+18:			<username>x<probe/>@lab.test</username>
+25:			<username>x<probe/>@lab.test</username>
+30:		<username>x<probe/>@lab.test</username>
+35:		<username>x<probe/>@lab.test</username>
+40:		<username>x<probe/>@lab.test</username>
+RESULT: VULNERABLE - tag reflected unescaped

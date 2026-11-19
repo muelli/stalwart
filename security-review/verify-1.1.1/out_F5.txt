@@ -1,0 +1,7 @@
+MKCOL a1795059639:        HTTP 201
+MKCOL a1795059639/b1795059639:   HTTP 201
+MOVE a1795059639 -> a1795059639/b1795059639/x1795059639:  HTTP 403   (expected: refused)
+FileNode parent ids after MOVE (look for b1795059639 and x1795059639 pointing at each other):
+{"id":"c","name":"a1795059639","parentId":null,"@type":"Directory"}
+{"id":"d","name":"b1795059639","parentId":"c","@type":"Directory"}
+PROPFIND a1795059639/ afterwards: HTTP 207   (404 = collection vanished from the tree)
