@@ -30,6 +30,7 @@ use tokio::sync::mpsc;
 use trc::PushSubscriptionEvent;
 use types::id::Id;
 use utils::{
+    HttpLimitResponse,
     error_chain,
     map::vec_map::VecMap,
     outbound::{OutboundClient, OutboundPolicy, Redirects},
@@ -332,8 +333,13 @@ pub(crate) async fn http_request(
 
                 true
             } else {
-                let mut reason = response.text().await.unwrap_or_default();
-                reason.truncate(reason.ceil_char_boundary(MAX_ERROR_RESPONSE_LEN));
+                let reason = response
+                    .bytes_with_limit(MAX_ERROR_RESPONSE_LEN)
+                    .await
+                    .ok()
+                    .flatten()
+                    .map(|bytes| String::from_utf8_lossy(&bytes).into_owned())
+                    .unwrap_or_default();
 
                 trc::event!(
                     PushSubscription(PushSubscriptionEvent::Error),
