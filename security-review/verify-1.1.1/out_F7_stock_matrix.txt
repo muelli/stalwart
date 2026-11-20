@@ -1,0 +1,14 @@
+# stock 1.1.1 (container sw3, stalwartlabs/stalwart:v1.1.1, /usr/local/bin/stalwart sha256 d68eb9b2f5f38ade...), F7_ws_matrix.py:
+advertised maxSizeRequest: 10000000; server RSS now: 114716 kB
+ 1 MiB single frame   : echo ok after 0.01s (1048672 bytes)
+    VmHWM kB before 177128 after 177128; VmRSS before 114716 kB after 118056 kB
+12 MiB single frame   : limit error after 0.04s (176 bytes)
+    VmHWM kB before 177128 after 177128; VmRSS before 118056 kB after 118060 kB
+20 MiB single frame   : connection closed during send (code=None)
+    VmHWM kB before 177128 after 177128; VmRSS before 118060 kB after 118060 kB
+20 MiB fragmented 1 MiB: limit error after 0.03s (176 bytes)
+    VmHWM kB before 177128 after 177128; VmRSS before 118060 kB after 121404 kB
+60 MiB fragmented 1 MiB: limit error after 0.09s (176 bytes)
+    VmHWM kB before 177128 after 186544; VmRSS before 121404 kB after 117304 kB
+    in-container 20 ms sampler VmRSS kB: first 121404 peak 176804 last 117344 (150 samples)
+push enable/disable: StateChange received; nothing after disable (expected)

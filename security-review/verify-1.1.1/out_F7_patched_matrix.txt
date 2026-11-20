@@ -1,0 +1,14 @@
+# patched build d6dcde6 (container sw5), F7_ws_matrix.py:
+advertised maxSizeRequest: 10000000; server RSS now: 117640 kB
+ 1 MiB single frame   : echo ok after 0.01s (1048672 bytes)
+    VmHWM kB before 133280 after 133280; VmRSS before 117640 kB after 120024 kB
+12 MiB single frame   : connection closed during send (code=None)
+    VmHWM kB before 133280 after 133280; VmRSS before 120024 kB after 120024 kB
+20 MiB single frame   : connection closed during send (code=None)
+    VmHWM kB before 133280 after 133280; VmRSS before 120024 kB after 120024 kB
+20 MiB fragmented 1 MiB: connection closed during send (code=None)
+    VmHWM kB before 133280 after 136028; VmRSS before 120024 kB after 120044 kB
+60 MiB fragmented 1 MiB: connection closed during send (code=None)
+    VmHWM kB before 136028 after 136212; VmRSS before 120044 kB after 120052 kB
+    in-container 20 ms sampler VmRSS kB: first 120044 peak 120052 last 119692 (150 samples)
+push enable/disable: StateChange received; nothing after disable (expected)

@@ -1,0 +1,29 @@
+# patched build: muelli/stalwart v1.1/websocket-message-limit d6dcde6 (one commit on v1.1.1), cargo build --release -p stalwart, rustc 1.98.1, binary mounted into the stock v1.1.1 image (container sw5), same data volumes
+# F7_ws_size.py unchanged, 20 MiB fragmented:
+Traceback (most recent call last):
+  File "/tmp/claude-0/-home-user-stalwart/368fdc17-0bd1-5296-8e3a-17200649d5f8/scratchpad/demo/F7_ws_size.py", line 19, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "/usr/lib/python3.13/asyncio/runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.13/asyncio/runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.13/asyncio/base_events.py", line 726, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/tmp/claude-0/-home-user-stalwart/368fdc17-0bd1-5296-8e3a-17200649d5f8/scratchpad/demo/F7_ws_size.py", line 15, in main
+    await ws.send(m[i:i+1048576] for i in range(0, len(m), 1048576))   # 1 MiB fragments
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/websockets/asyncio/connection.py", line 539, in send
+    async with self.send_context():
+               ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/websockets/asyncio/connection.py", line 960, in send_context
+    raise self.protocol.close_exc from original_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+
+# NOTE: on the patched build the server closes the TCP connection as soon as the message exceeds request_max_size (no WebSocket close frame, no JMAP error), so the unchanged script raises ConnectionClosedError instead of printing a RESULT line. That is the fixed behaviour.
